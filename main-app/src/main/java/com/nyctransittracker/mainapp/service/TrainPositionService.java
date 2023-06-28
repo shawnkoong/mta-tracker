@@ -2,6 +2,8 @@ package com.nyctransittracker.mainapp.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nyctransittracker.mainapp.dto.MtaResponse;
+import com.nyctransittracker.mainapp.dto.TrainPositionResponse;
 import com.nyctransittracker.mainapp.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,17 +13,16 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.linearref.LengthIndexedLine;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
+import static com.nyctransittracker.mainapp.util.StopIdUtil.findNextStopId;
+
 @Slf4j
 @Service
-@EnableScheduling
 @RequiredArgsConstructor
 public class TrainPositionService {
 
@@ -33,18 +34,19 @@ public class TrainPositionService {
         return redisService.getTrainPositions();
     }
 
-    @Scheduled(fixedRate = 30000, initialDelay = 5000)
     public void processTrainPositions() {
+        log.info("Starting train position calculation: " + Instant.now().toString());
         MtaResponse mtaResponse = redisService.getMtaData();
         Map<String, Route> routes = mtaResponse.getRoutes();
-        Map<String, List<CoordinateBearing>> allPositions = new HashMap<>();
+        Map<String, Map<String, List<CoordinateBearing>>> allPositions = new HashMap<>();
         routes.forEach((line, route) -> {
             if (!route.isScheduled() || route.getStatus().equals("No Service")) {
                 return;
             }
-            List<CoordinateBearing> trainPositions = new ArrayList<>();
+            Map<String, List<CoordinateBearing>> directionMap = new HashMap<>();
             Map<String, List<Trip>> trips = route.getTrips();
             trips.forEach((direction, tripList) -> {
+                List<CoordinateBearing> trainPositions = new ArrayList<>();
                 tripList.forEach((trip) -> {
                     String lastStopId = trip.getLastStopMade();
                     if (lastStopId == null) {
@@ -62,18 +64,12 @@ public class TrainPositionService {
                             calculateTrainPosition(stops, path.get(), lastStopId, nextStopId);
                     trainPositions.add(coordinateBearing);
                 });
+                directionMap.put(direction, trainPositions);
             });
-            allPositions.put(line, trainPositions);
+            allPositions.put(line, directionMap);
         });
         redisService.saveTrainPositions(new TrainPositionResponse(allPositions));
-    }
-
-    private String findNextStopId(Map<String, Long> stops, String lastStopId) {
-        // sorting stops by the timestamp then extracting out the keys (stop IDs)
-        List<Map.Entry<String, Long>> entryList = new ArrayList<>(stops.entrySet());
-        entryList.sort(Map.Entry.comparingByValue());
-        List<String> stopIds = entryList.stream().map(Map.Entry::getKey).toList();
-        return stopIds.get(stopIds.indexOf(lastStopId) + 1); // not too sure if I have to check bounds here
+        log.info("Done with train position calculation: " + Instant.now().toString());
     }
 
     private CoordinateBearing calculateTrainPosition(Map<String, Long> stops, Path path,
@@ -119,6 +115,9 @@ public class TrainPositionService {
      * @param stationDetailMap - map representation of station details json
      * @param step - number steps into the recursive call for stops that split into multiple stops
      * @return list of Points from start to end, or empty list if path does not exist
+     * <p>
+     * finds path from Station x to Station x+n, going from x->x+n, then x+1->x+n, until a path exists,
+     * most likely till x+n-1->x+n
      */
     private List<Point> getPathRecursive(String start, String end,
                                          Map<String, StationDetail> stationDetailMap, int step) {
@@ -150,6 +149,12 @@ public class TrainPositionService {
         return new ArrayList<>();
     }
 
+
+    /*
+    * creates a map of stopId to StationDetail, containing information,
+    * such as what stops are north/south of this stop
+    * use this to recursively find paths
+    * */
     private Map<String, StationDetail> getStationDetailMap() {
         final String fileName = "station_details.json";
         try {

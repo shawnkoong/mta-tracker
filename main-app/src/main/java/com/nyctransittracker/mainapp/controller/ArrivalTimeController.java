@@ -1,21 +1,21 @@
 package com.nyctransittracker.mainapp.controller;
 
-import com.nyctransittracker.mainapp.dto.MtaResponse;
-import com.nyctransittracker.mainapp.service.RedisService;
+import com.nyctransittracker.mainapp.dto.ArrivalTimeResponse;
+import com.nyctransittracker.mainapp.service.TimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/data")
+@RequestMapping("/api/v1/times")
 @RequiredArgsConstructor
-public class MtaController {
+public class ArrivalTimeController {
 
-    private final RedisService redisService;
+    private final TimeService timeService;
 
     @GetMapping
-    public MtaResponse getMtaData() {
-        return redisService.getMtaData();
+    public ArrivalTimeResponse getArrivalTimes() {
+        return timeService.getArrivalTimes();
     }
 }
