@@ -15,9 +15,7 @@ public class SubscriptionController {
     private final SubscriptionService service;
 
     @PostMapping("/subscribe")
-    public ResponseEntity<SubscriptionResponse> subscribe(
-        @RequestBody SubscriptionRequest request
-    ) {
+    public ResponseEntity<SubscriptionResponse> subscribe(@RequestBody SubscriptionRequest request) {
         if (request.getUserEmail() != null && request.getStopId() != null) {
             service.subscribe(request);
             return ResponseEntity
@@ -33,9 +31,7 @@ public class SubscriptionController {
     }
 
     @PutMapping("/unsubscribe")
-    public ResponseEntity<SubscriptionResponse> unsubscribe(
-            @RequestBody SubscriptionRequest request
-    ) {
+    public ResponseEntity<SubscriptionResponse> unsubscribe(@RequestBody SubscriptionRequest request) {
         if (request.getUserEmail() != null && request.getStopId() != null) {
             service.unsubscribe(request);
             return ResponseEntity

@@ -36,7 +36,7 @@ public class SubscriptionService {
         if (user.isPresent() && stop.isPresent()){
             Stop existingStop = stop.get();
             User existingUser = user.get();
-            if (!existingStop.getSubscribedUsers().contains(existingUser)) {
+            if (existingStop.getSubscribedUsers().contains(existingUser)) {
                 existingStop.getSubscribedUsers().remove(existingUser);
                 stopRepository.save(existingStop);
             }
