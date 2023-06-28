@@ -30,7 +30,7 @@ public class User implements UserDetails{
     private String email;
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Stop> subscribedStops;
 
     @Enumerated(EnumType.STRING)
