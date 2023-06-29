@@ -40,8 +40,6 @@ public class Route {
     private Map<String, List<Section>> longHeadwaySections;
     @JsonProperty("delayed_sections")
     private Map<String, List<Section>> delayedSections;
-//    routesWithSharedTracks;
-//    routesWithSharedTracksSummary;
     private Map<String, List<Trip>> trips;
     @JsonProperty("additional_trips_on_shared_tracks")
     private List<String> additionalTripsOnSharedTracks;

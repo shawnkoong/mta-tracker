@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -30,10 +29,4 @@ public class Stop {
     private String name;
     private Double latitude;
     private Double longitude;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "subscriptions",
-            joinColumns = @JoinColumn(name = "stop_unqiue_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> subscribedUsers;
 }
