@@ -7,6 +7,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RouteSubscriptionService {
@@ -17,9 +21,26 @@ public class RouteSubscriptionService {
         return routeSubscriptionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public void subscribeTo(String id, User user) {
+    public void subscribe(String id, User user) {
         RouteSubscription routeSubscription = getRouteSubscription(id);
         routeSubscription.getSubscribedUsers().add(user);
         routeSubscriptionRepository.save(routeSubscription);
+    }
+
+    public void unsubscribe(String id, User user) {
+        RouteSubscription routeSubscription = getRouteSubscription(id);
+        routeSubscription.getSubscribedUsers().remove(user);
+        routeSubscriptionRepository.save(routeSubscription);
+    }
+
+    public void createRouteSubscriptions(String[] routes) {
+        if (routeSubscriptionRepository.count() != 0) {
+            return;
+        }
+        List<RouteSubscription> routeSubscriptions = new ArrayList<>();
+        for (String route : routes) {
+            routeSubscriptions.add(new RouteSubscription(route, new HashSet<>()));
+        }
+        routeSubscriptionRepository.saveAll(routeSubscriptions);
     }
 }
