@@ -1,9 +1,11 @@
 package com.nyctransittracker.mainapp.service;
 
 import com.nyctransittracker.mainapp.dto.MtaResponse;
+import com.nyctransittracker.mainapp.event.NotificationEvent;
 import com.nyctransittracker.mainapp.model.Route;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -19,6 +21,9 @@ public class NotificationService {
 
     private final RedisService redisService;
     private final RouteSubscriptionService routeSubscriptionService;
+
+    private final KafkaTemplate<String, NotificationEvent> kafkaTemplate;
+    private final static String topic = "emails-topic";
 
     public void processNotifications() {
         log.info("Starting notification process: " + Instant.now().toString());
@@ -53,10 +58,16 @@ public class NotificationService {
             alertMap.put(routeId, alerts);
             emailMap.put(routeId, routeSubscriptionService.getEmails(routeId));
         });
-
-        //TODO: combine alertMap and emailMap to get map of user email to map of route to alerts
-        // Map<String, Map<String, List<String>>>, and send this to kafka
-
+        // email to routes to alerts
+        Map<String, Map<String, List<String>>> emailAlerts = new HashMap<>();
+        emailMap.forEach((routeId, emailList) -> {
+            for (String email : emailList) {
+                var routeAlerts = emailAlerts.getOrDefault(email, new HashMap<>());
+                routeAlerts.put(routeId, alertMap.get(routeId));
+                emailAlerts.put(email, routeAlerts);
+            }
+        });
+        kafkaTemplate.send(topic, new NotificationEvent(emailAlerts));
         log.info("Done with notification process: " + Instant.now().toString());
     }
 
