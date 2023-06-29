@@ -43,4 +43,9 @@ public class RouteSubscriptionService {
         }
         routeSubscriptionRepository.saveAll(routeSubscriptions);
     }
+
+    public List<String> getEmails(String id) {
+        RouteSubscription routeSubscription = getRouteSubscription(id);
+        return routeSubscription.getSubscribedUsers().stream().map(User::getEmail).toList();
+    }
 }
