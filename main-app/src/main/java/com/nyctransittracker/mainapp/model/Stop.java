@@ -20,28 +20,20 @@ import java.util.Set;
 @Table(name="stops")
 public class Stop {
     @Id
-    @Column(name = "ID")
-    private String uniqueId;
-    @Column(name="GTFS_STOP_ID", length=50, nullable=false)
+    private String uniqueId; // route-GTFS_id-direction
     @JsonProperty("id")
     private String GTFSStopID;
     @Transient
     private Map<String, List> routes;
-    @Column(name="ROUTE", length=50, nullable=false)
     private String route;
-    @Column(name="DIRECTION", length=50, nullable=false)
     private String direction;
-    @Column(name="NAME", length=50, nullable=false)
     private String name;
-    @Column(name="LATITUDE", length=50, nullable=false)
     private Double latitude;
-    @Column(name="LONGITUDE", length=50, nullable=false)
     private Double longitude;
-    @Column(name="SUBSCRIBED_USERS")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "SUBSCRIPTIONS",
-            joinColumns = @JoinColumn(name = "STOP_ID"),
-            inverseJoinColumns = @JoinColumn(name = "USER_ID"))
+            name = "subscriptions",
+            joinColumns = @JoinColumn(name = "stop_unqiue_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> subscribedUsers;
 }

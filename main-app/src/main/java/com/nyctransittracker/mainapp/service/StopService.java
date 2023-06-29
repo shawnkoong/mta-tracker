@@ -10,10 +10,11 @@ import org.springframework.stereotype.Service;
 public class StopService {
 
     private final StopRepository repository;
+
     public void createStop(Stop stop, String direction, String route) {
-        if (!repository.findById(route).isPresent()) {
-            var newStop = new Stop();
-            newStop.setUniqueId(stop.getGTFSStopID() + route + direction);
+        if (repository.findById(route).isEmpty()) {
+            Stop newStop = new Stop();
+            newStop.setUniqueId(route + "-" + stop.getGTFSStopID() + "-" + direction);
             newStop.setGTFSStopID(stop.getGTFSStopID());
             newStop.setName(stop.getName());
             newStop.setLatitude(stop.getLatitude());
