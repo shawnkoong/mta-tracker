@@ -31,7 +31,7 @@ public class User implements UserDetails{
     private String password;
 
     @ManyToMany(mappedBy = "subscribedUsers")
-    private Set<Stop> subscribedStops;
+    private Set<RouteSubscription> subscribedRoutes;
 
     @Enumerated(EnumType.STRING)
     private Role role;
