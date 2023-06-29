@@ -1,6 +1,7 @@
 package com.nyctransittracker.mainapp.util;
 
 import com.nyctransittracker.mainapp.dto.MtaResponse;
+import com.nyctransittracker.mainapp.service.NotificationService;
 import com.nyctransittracker.mainapp.service.RedisService;
 import com.nyctransittracker.mainapp.service.TimeService;
 import com.nyctransittracker.mainapp.service.TrainPositionService;
@@ -26,6 +27,7 @@ public class DataFetcher {
     private final RedisService redisService;
     private final TrainPositionService trainPositionService;
     private final TimeService timeService;
+    private final NotificationService notificationService;
 
     @Async
     @Scheduled(fixedRate = 30000)
@@ -43,7 +45,9 @@ public class DataFetcher {
                 CompletableFuture.runAsync(trainPositionService::processTrainPositions);
         CompletableFuture<Void> processArrivalTimesFuture =
                 CompletableFuture.runAsync(timeService::processTimeInfo);
-        return CompletableFuture.allOf(processArrivalTimesFuture, processTrainPositionFuture);
+        CompletableFuture<Void> processNotification =
+                CompletableFuture.runAsync(notificationService::processNotifications);
+        return CompletableFuture.allOf(processArrivalTimesFuture, processTrainPositionFuture, processNotification);
     }
 
 }
