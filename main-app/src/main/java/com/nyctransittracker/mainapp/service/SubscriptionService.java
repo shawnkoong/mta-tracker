@@ -1,45 +1,24 @@
 package com.nyctransittracker.mainapp.service;
 
 import com.nyctransittracker.mainapp.dto.SubscriptionRequest;
-import com.nyctransittracker.mainapp.model.Stop;
 import com.nyctransittracker.mainapp.model.User;
-import com.nyctransittracker.mainapp.repository.StopRepository;
-import com.nyctransittracker.mainapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
 
-    private final StopRepository stopRepository;
-    private final UserRepository userRepository;
+    private final RouteSubscriptionService routeSubscriptionService;
+    private final UserService userService;
 
     public void subscribe(SubscriptionRequest request) {
-        Optional<Stop> stop = stopRepository.findById(request.getStopId());
-        Optional<User> user = userRepository.findByEmail(request.getUserEmail());
-        if (user.isPresent() && stop.isPresent()){
-            Stop existingStop = stop.get();
-            User existingUser = user.get();
-            if (!existingStop.getSubscribedUsers().contains(existingUser)) {
-                existingStop.getSubscribedUsers().add(existingUser);
-                stopRepository.save(existingStop);
-            }
-        }
+        User user = userService.getUser(request.getUserId());
+        routeSubscriptionService.subscribe(request.getRouteId(), user);
     }
 
     public void unsubscribe(SubscriptionRequest request) {
-        Optional<Stop> stop = stopRepository.findById(request.getStopId());
-        Optional<User> user = userRepository.findByEmail(request.getUserEmail());
-        if (user.isPresent() && stop.isPresent()){
-            Stop existingStop = stop.get();
-            User existingUser = user.get();
-            if (existingStop.getSubscribedUsers().contains(existingUser)) {
-                existingStop.getSubscribedUsers().remove(existingUser);
-                stopRepository.save(existingStop);
-            }
-        }
+        User user = userService.getUser(request.getUserId());
+        routeSubscriptionService.unsubscribe(request.getRouteId(), user);
     }
 }

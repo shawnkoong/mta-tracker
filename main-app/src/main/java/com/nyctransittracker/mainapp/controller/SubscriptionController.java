@@ -16,23 +16,23 @@ public class SubscriptionController {
 
     @PostMapping("/subscribe")
     public ResponseEntity<SubscriptionResponse> subscribe(@RequestBody SubscriptionRequest request) {
-        if (request.getUserEmail() != null && request.getStopId() != null) {
+        if (request.getUserId() != null && request.getRouteId() != null) {
             service.subscribe(request);
             return ResponseEntity
                     .ok(SubscriptionResponse.builder()
-                    .message("Successfully subscribed.")
-                    .build());
+                            .message("Successfully subscribed.")
+                            .build());
         } else {
             return ResponseEntity
-            .badRequest().body(SubscriptionResponse.builder()
-            .message("Invalid subscription request.")
-            .build());
+                    .badRequest().body(SubscriptionResponse.builder()
+                            .message("Invalid subscription request.")
+                            .build());
         }
     }
 
     @PutMapping("/unsubscribe")
     public ResponseEntity<SubscriptionResponse> unsubscribe(@RequestBody SubscriptionRequest request) {
-        if (request.getUserEmail() != null && request.getStopId() != null) {
+        if (request.getUserId() != null && request.getRouteId() != null) {
             service.unsubscribe(request);
             return ResponseEntity
                     .ok(SubscriptionResponse.builder()

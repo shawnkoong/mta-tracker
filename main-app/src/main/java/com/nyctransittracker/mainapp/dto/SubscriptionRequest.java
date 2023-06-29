@@ -1,6 +1,5 @@
 package com.nyctransittracker.mainapp.dto;
 
-import com.nyctransittracker.mainapp.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubscriptionRequest {
-    private String userEmail;
-    private String stopId;
+    private Integer userId;
+    private String routeId;
 }
