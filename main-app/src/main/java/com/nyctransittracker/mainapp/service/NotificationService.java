@@ -78,4 +78,24 @@ public class NotificationService {
     private boolean isChangesEmpty(Map<String, List<String>> changes) {
         return changes.get("both").isEmpty() && changes.get("north").isEmpty() && changes.get("south").isEmpty();
     }
+
+    public void testNotification() {
+        log.info("Starting notification process: " + Instant.now().toString());
+        List<String> emails = List.of("test0@email.com", "test1@email.com", "test2@email.com", "test3@email.com");
+        List<String> routeIds = List.of("A", "B", "C", "1", "2");
+        List<String> alerts = List.of("service delayed", "service changed", "service stopped", "service skipped");
+        Map<String, Map<String, List<String>>> emailAlerts = new HashMap<>();
+        for (String email : emails) {
+            var routeAlerts = emailAlerts.getOrDefault(email, new HashMap<>());
+            for (int i = 0; i < routeIds.size(); i++) {
+                String routeId = routeIds.get(i);
+                List<String> alert = new ArrayList<>(alerts.subList(i % alerts.size(), i % alerts.size() + 1));
+                alert.add("extra alert to test list");
+                routeAlerts.put(routeId, alert);
+            }
+            emailAlerts.put(email, routeAlerts);
+        }
+        kafkaTemplate.send(topic, new NotificationEvent(emailAlerts));
+        log.info("Done with notification process: " + Instant.now().toString());
+    }
 }
