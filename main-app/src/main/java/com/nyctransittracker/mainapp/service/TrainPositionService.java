@@ -35,19 +35,22 @@ public class TrainPositionService {
     }
 
     public void processTrainPositions() {
-        log.info("Starting train position calculation: " + Instant.now().toString());
+        UUID processId = UUID.randomUUID();
+        log.info("Starting train position calculation: " + Instant.now().toString() + ", Process " + processId);
         MtaResponse mtaResponse = redisService.getMtaData();
         Map<String, Route> routes = mtaResponse.getRoutes();
         Map<String, Map<String, List<CoordinateBearing>>> allPositions = new HashMap<>();
-        routes.forEach((line, route) -> {
+        routes.entrySet().parallelStream().forEach(routeEntry -> {
+            Route route = routeEntry.getValue();
             if (!route.isScheduled() || route.getStatus().equals("No Service")) {
                 return;
             }
+            String line = routeEntry.getKey();
             Map<String, List<CoordinateBearing>> directionMap = new HashMap<>();
             Map<String, List<Trip>> trips = route.getTrips();
             trips.forEach((direction, tripList) -> {
                 List<CoordinateBearing> trainPositions = new ArrayList<>();
-                tripList.forEach((trip) -> {
+                tripList.parallelStream().forEach((trip) -> {
                     String lastStopId = trip.getLastStopMade();
                     if (lastStopId == null) {
                         return;
@@ -69,7 +72,7 @@ public class TrainPositionService {
             allPositions.put(line, directionMap);
         });
         redisService.saveTrainPositions(new TrainPositionResponse(allPositions));
-        log.info("Done with train position calculation: " + Instant.now().toString());
+        log.info("Done with train position calculation: " + Instant.now().toString() + ", Process " + processId);
     }
 
     private CoordinateBearing calculateTrainPosition(Map<String, Long> stops, Path path,
