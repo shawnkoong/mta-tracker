@@ -7,5 +7,6 @@ import java.util.Map;
 
 
 // positions: line to direction to positions
-public record TrainPositionResponse(Map<String, Map<String, List<CoordinateBearing>>> positions) {
+public record TrainPositionResponse(long timestamp,
+                                    Map<String, Map<String, List<CoordinateBearing>>> positions) {
 }
