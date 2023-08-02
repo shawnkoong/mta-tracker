@@ -30,7 +30,7 @@ public class DataFetcher {
     private final NotificationService notificationService;
 
     @Async
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 15000)
     public CompletableFuture<Void> fetchData() {
         log.info("Starting fetching data: " + Instant.now().toString());
         MtaResponse mtaResponse = webClient.get()
@@ -45,9 +45,8 @@ public class DataFetcher {
                 CompletableFuture.runAsync(trainPositionService::processTrainPositions);
         CompletableFuture<Void> processArrivalTimesFuture =
                 CompletableFuture.runAsync(timeService::processTimeInfo);
-        CompletableFuture<Void> processNotification =
-                CompletableFuture.runAsync(notificationService::processNotifications);
-        return CompletableFuture.allOf(processArrivalTimesFuture, processTrainPositionFuture, processNotification);
+//        CompletableFuture<Void> processNotification =
+//                CompletableFuture.runAsync(notificationService::testNotification);
+        return CompletableFuture.allOf(processTrainPositionFuture, processArrivalTimesFuture);
     }
-
 }
