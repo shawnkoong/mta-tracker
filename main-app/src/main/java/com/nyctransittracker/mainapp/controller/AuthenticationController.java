@@ -20,38 +20,34 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-        @RequestBody RegisterRequest request
-    ) {
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
         String jwtToken = service.register(request);
         if (jwtToken.length() > 0) {
             return ResponseEntity
                     .ok(AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .build());
+                            .token(jwtToken)
+                            .build());
         } else {
             return ResponseEntity
-            .badRequest().body(AuthenticationResponse.builder()
-            .message("Email already taken.")
-            .build());
+                    .badRequest().body(AuthenticationResponse.builder()
+                            .message("Email already taken.").build());
         }
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-        @RequestBody AuthenticationRequest request
-    ) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         String jwtToken = service.authenticate(request);
         if (jwtToken.length() > 0) {
             return ResponseEntity
                     .ok(AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .build());
+                            .token(jwtToken)
+                            .build());
         } else {
             return ResponseEntity
-            .badRequest().body(AuthenticationResponse.builder()
-            .message("Invalid login credentials.")
-            .build());
+                    .badRequest()
+                    .body(AuthenticationResponse.builder()
+                            .message("Invalid login credentials.")
+                            .build());
         }
     }
 }
