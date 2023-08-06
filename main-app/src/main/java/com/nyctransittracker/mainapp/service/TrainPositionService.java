@@ -62,7 +62,7 @@ public class TrainPositionService {
                             calculateTrainPosition(stops, coordinates, lastStopId, nextStopId);
                     trainPositions.add(coordinateBearing);
                 });
-                directionMap.put(line, trainPositions);
+                directionMap.put(direction, trainPositions);
             });
             allPositions.put(line, directionMap);
         });
