@@ -15,4 +15,16 @@ public class UserService {
     public User getUser(int id) {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
+
+    public boolean checkUniqueEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    public User addUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public User getUserWithEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+    }
 }
