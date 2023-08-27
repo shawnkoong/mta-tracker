@@ -40,8 +40,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
     private final RSAKeyProperties rsaKeys;
     private final UserRepository userRepository;
 
