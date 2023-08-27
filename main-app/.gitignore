@@ -34,3 +34,4 @@ build/
 
 ### Secret Properties ###
 /src/main/resources/secret.properties
+/src/main/resources/certs/
