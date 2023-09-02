@@ -27,4 +27,14 @@ public class UserService {
     public User getUserWithEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
     }
+
+    public void addSubscription(User user, String routeId) {
+        user.getSubscribedRoutes().add(routeId);
+        userRepository.save(user);
+    }
+
+    public void removeSubscription(User user, String routeId) {
+        user.getSubscribedRoutes().remove(routeId);
+        userRepository.save(user);
+    }
 }
