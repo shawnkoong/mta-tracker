@@ -17,7 +17,7 @@ public class SubscriptionController {
     @PostMapping("/subscribe")
     public ResponseEntity<SubscriptionResponse> subscribe(@RequestBody SubscriptionRequest request) {
         if (request.getUserId() != null && request.getRouteId() != null) {
-            service.subscribe(request);
+            service.subscribe(request.getUserId(), request.getRouteId());
             return ResponseEntity
                     .ok(SubscriptionResponse.builder()
                             .message("Successfully subscribed.")
@@ -33,7 +33,7 @@ public class SubscriptionController {
     @PutMapping("/unsubscribe")
     public ResponseEntity<SubscriptionResponse> unsubscribe(@RequestBody SubscriptionRequest request) {
         if (request.getUserId() != null && request.getRouteId() != null) {
-            service.unsubscribe(request);
+            service.unsubscribe(request.getUserId(), request.getRouteId());
             return ResponseEntity
                     .ok(SubscriptionResponse.builder()
                             .message("Successfully unsubscribed.")
