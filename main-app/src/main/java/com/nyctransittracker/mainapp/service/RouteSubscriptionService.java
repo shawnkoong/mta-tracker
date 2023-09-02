@@ -16,6 +16,7 @@ import java.util.List;
 public class RouteSubscriptionService {
 
     private final RouteSubscriptionRepository routeSubscriptionRepository;
+    private final UserService userService;
 
     public RouteSubscription getRouteSubscription(String id) {
         return routeSubscriptionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -25,12 +26,14 @@ public class RouteSubscriptionService {
         RouteSubscription routeSubscription = getRouteSubscription(id);
         routeSubscription.getSubscribedUsers().add(user);
         routeSubscriptionRepository.save(routeSubscription);
+        userService.addSubscription(user, id);
     }
 
     public void unsubscribe(String id, User user) {
         RouteSubscription routeSubscription = getRouteSubscription(id);
         routeSubscription.getSubscribedUsers().remove(user);
         routeSubscriptionRepository.save(routeSubscription);
+        userService.removeSubscription(user, id);
     }
 
     public void createRouteSubscriptions(String[] routes) {
